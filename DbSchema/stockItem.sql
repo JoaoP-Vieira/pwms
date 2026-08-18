@@ -7,7 +7,6 @@
 CREATE TABLE public.stock_item (
 	id int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
 	material_id uuid NOT NULL,
-	label varchar(8) NOT NULL,
 	location_id int4 NOT NULL,
 	invoice_id uuid NOT NULL,
 	invoice_line_number int4 NOT NULL,

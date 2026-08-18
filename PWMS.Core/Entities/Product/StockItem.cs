@@ -4,7 +4,6 @@ namespace PWMS.Core.Entities.Product
 {
 	public class StockItem : Item
 	{
-		public string Label { get; private set; }
 		public StockLocation Location { get; private set; }
 		public Guid InvoiceId { get; private set; }
 		public int InvoiceLineNumber { get; private set; }
