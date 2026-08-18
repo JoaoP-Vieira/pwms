@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ModernMediator;
 using PWMS.Service.Commands;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PWMS.API.Controllers
 {
@@ -16,6 +19,7 @@ namespace PWMS.API.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> SingInvoice([FromBody] CreateInvoiceCommand body)
 		{
 			try
@@ -34,6 +38,7 @@ namespace PWMS.API.Controllers
 			}
 		}
 
+		[Authorize]
 		[HttpPut("assing/vehicle")]
 		public async Task<IActionResult> AssingVehicleToInvoice([FromBody] AssingVehicleToInvoiceCommand body)
 		{
@@ -53,12 +58,17 @@ namespace PWMS.API.Controllers
 			}
 		}
 
+		[Authorize]
 		[HttpPost("confer")]
-		public async Task<IActionResult> ConferItem([FromBody] ConferInvoiceItemCommand body)
+		public async Task<IActionResult> ConferItem([FromBody] ConferInvoiceItemBody body)
 		{
 			try
 			{
-				var result = await _sender.SendAsync(body);
+				var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+				if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+
+				var result = await _sender.SendAsync(new ConferInvoiceItemCommand(body.barCode, body.quantity, int.Parse(userId)));
 
 				return Ok(result);
 			}

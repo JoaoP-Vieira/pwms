@@ -5,7 +5,8 @@ using PWMS.Core.Interfaces.Fiscal;
 
 namespace PWMS.Service.Commands
 {
-	public record ConferInvoiceItemCommand(string barCode, decimal quantity) : IRequest<bool>;
+	public record ConferInvoiceItemBody(string barCode, decimal quantity);
+	public record ConferInvoiceItemCommand(string barCode, decimal quantity, int userId) : IRequest<bool>;
 
 	public class ConferInvoiceItemCommandHandler(
 		IUnitOfWork _unitOfWork,
@@ -53,7 +54,7 @@ namespace PWMS.Service.Commands
 				if (invoice.Status == InvoiceStatus.Pending)
 					await _invoiceRepository.UpdateStatusAsync(invoice.InvoiceNumber, InvoiceStatus.InConference);
 
-				await _invoiceItemRepository.UpdateItemAsync(invoice.Id, lineNumber, request.quantity);
+				await _invoiceItemRepository.UpdateItemAsync(invoice.Id, lineNumber, request.quantity, request.userId);
 
 				await _unitOfWork.CommitAsync();
 

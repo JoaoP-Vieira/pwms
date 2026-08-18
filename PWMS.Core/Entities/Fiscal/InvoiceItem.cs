@@ -8,6 +8,8 @@
 		public decimal? ProcessedQuantity { get; private set; }
 		public decimal UnitPrice { get; private set; }
 		public Material ItemMaterial { get; private set; }
+		public User? ConferenceUser { get; private set; }
+		public DateTime? ConferenceDate { get; private set; }
 		public decimal Quantity => ProcessedQuantity != null ? ProcessedQuantity.Value : DeclaredQuantity;
 		public decimal TotalPrice => Quantity * UnitPrice;
 
@@ -29,6 +31,8 @@
 			ProcessedQuantity = null;
 			UnitPrice = unitPrice;
 			ItemMaterial = itemMaterial;
+			ConferenceUser = null;
+			ConferenceDate = null;
 		}
 	}
 }

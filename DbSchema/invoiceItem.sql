@@ -1,4 +1,4 @@
--- public.invoice_item definição
+-- public.invoice_item definiÃ§Ã£o
 
 -- Drop table
 
@@ -11,6 +11,8 @@ CREATE TABLE public.invoice_item (
 	processed_quantity numeric NULL,
 	unity_price numeric NOT NULL,
 	material_id uuid NOT NULL,
+	conference_user_id int4 NULL,
+	conference_date timestamp NULL,
 	CONSTRAINT ci_invoice_id_line_number UNIQUE (invoice_id, line_number)
 );
 
@@ -19,3 +21,4 @@ CREATE TABLE public.invoice_item (
 
 ALTER TABLE public.invoice_item ADD CONSTRAINT fk_invoice_item_invoice_id FOREIGN KEY (invoice_id) REFERENCES public.invoice(id);
 ALTER TABLE public.invoice_item ADD CONSTRAINT invoice_item_material_fk FOREIGN KEY (material_id) REFERENCES public.material(id);
+ALTER TABLE public.invoice_item ADD CONSTRAINT invoice_item_user_fk FOREIGN KEY (conference_user_id) REFERENCES public."user"(id) ON DELETE SET NULL;

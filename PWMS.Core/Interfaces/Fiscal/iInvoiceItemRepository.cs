@@ -2,6 +2,6 @@
 {
 	public interface IInvoiceItemRepository
 	{
-		Task UpdateItemAsync(Guid invoiceId, int lineNumber, decimal processedQuantity);
+		Task UpdateItemAsync(Guid invoiceId, int lineNumber, decimal processedQuantity, int userId);
 	}
 }
