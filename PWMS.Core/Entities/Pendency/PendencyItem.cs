@@ -5,7 +5,7 @@
 		public PendencyType PendencyType { get; private set; }
 		public string Description { get; private set; }
 
-		public PendencyItem(PendencyType pendencyType, string description)
+		public PendencyItem(Material material, PendencyType pendencyType, string description) : base(material)
 		{
 			PendencyType = pendencyType;
 			Description = description;

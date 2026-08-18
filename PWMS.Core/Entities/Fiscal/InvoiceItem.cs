@@ -1,6 +1,6 @@
 ﻿namespace PWMS.Core.Entities.Fiscal
 {
-	public sealed class InvoiceItem : Item
+	public sealed class InvoiceItem
 	{
 		public Guid InvoiceId { get; private set; }
 		public int LineNumber { get; private set; }

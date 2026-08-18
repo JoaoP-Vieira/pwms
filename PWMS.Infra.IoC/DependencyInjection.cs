@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using ModernMediator;
 using PWMS.Core.Interfaces;
 using PWMS.Core.Interfaces.Address;
@@ -7,6 +10,7 @@ using PWMS.Core.Interfaces.Fiscal;
 using PWMS.Infra.Data;
 using PWMS.Infra.Data.Logging;
 using PWMS.Infra.Data.Repositories;
+using PWMS.Infra.Data.Security;
 using PWMS.Service.Queries;
 using Serilog;
 
@@ -30,6 +34,10 @@ namespace PWMS.Infra.IoC
 			services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
 			services.AddScoped<IMaterialRepository, MaterialRepository>();
 			services.AddScoped<ILocationRepository, LocationRepository>();
+			services.AddScoped<IUserRepository, UserRepository>();
+
+			services.AddSingleton<IPasswordHasher, PasswordHasher>();
+			services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
 			return services;
 		}
@@ -53,6 +61,46 @@ namespace PWMS.Infra.IoC
 
 			services.AddSingleton<ILogger>(logger);
 			services.AddScoped<IApplicationLogger, SerilogApplicationLogger>();
+
+			return services;
+		}
+
+		public static IServiceCollection AddJwtAuthentication(
+			this IServiceCollection services,
+			IConfiguration configuration)
+		{
+			var jwtSection = configuration.GetSection("Jwt");
+
+			services.Configure<JwtSettings>(jwtSection);
+
+			var settings = jwtSection.Get<JwtSettings>()
+				?? throw new InvalidOperationException("Jwt configuration section not found.");
+
+			if (string.IsNullOrWhiteSpace(settings.Key))
+				throw new InvalidOperationException("Jwt:Key configuration is required.");
+
+			services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(options =>
+			{
+				options.MapInboundClaims = false;
+				options.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuer = true,
+					ValidIssuer = settings.Issuer,
+					ValidateAudience = true,
+					ValidAudience = settings.Audience,
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key)),
+					ValidateLifetime = true,
+					ClockSkew = TimeSpan.FromMinutes(1)
+				};
+			});
+
+			services.AddAuthorization();
 
 			return services;
 		}

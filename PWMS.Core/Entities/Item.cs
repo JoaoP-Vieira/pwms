@@ -4,8 +4,12 @@ namespace PWMS.Core.Entities
 {
 	public abstract class Item
 	{
-		public Guid Id { get; }
+		public int Id { get; private set; }
 		public Material Material { get; private set; }
-		public Location Location { get; private set; }
+
+		protected Item(Material material)
+		{
+			Material = material;
+		}
 	}
 }

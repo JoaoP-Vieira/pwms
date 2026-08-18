@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
     <PackageReference Include="ModernMediator" Version="2.2.1" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
