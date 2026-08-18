@@ -14,8 +14,7 @@ namespace PWMS.Core.Entities.Product
 
 		public StockItem(
 			Material material, 
-			string label, 
-			LabelType type, 
+			string label,
 			StockLocation location,
 			Guid invoiceId,
 			int invoiceLineNumber,
@@ -32,7 +31,6 @@ namespace PWMS.Core.Entities.Product
 				throw new ArgumentException("Conference user ID should be valid", nameof(conferenceUserId));
 
 			Label = label;
-			Type = type;
 			Location = location;
 			InvoiceId = invoiceId;
 			InvoiceLineNumber = invoiceLineNumber;
