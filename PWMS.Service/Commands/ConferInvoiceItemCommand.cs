@@ -2,6 +2,7 @@
 using PWMS.Core.Entities.Fiscal;
 using PWMS.Core.Interfaces;
 using PWMS.Core.Interfaces.Fiscal;
+using PWMS.Service.RabbitMQ.Commands;
 
 namespace PWMS.Service.Commands
 {
@@ -12,7 +13,8 @@ namespace PWMS.Service.Commands
 		IUnitOfWork _unitOfWork,
 		IInvoiceRepository _invoiceRepository,
 		IInvoiceItemRepository _invoiceItemRepository,
-		IApplicationLogger _logger
+		IApplicationLogger _logger,
+		IMediator _mediator
 	) : IValueTaskRequestHandler<ConferInvoiceItemCommand, bool>
 	{
 		public async ValueTask<bool> Handle(ConferInvoiceItemCommand request, CancellationToken cancellationToken = default)
@@ -55,6 +57,15 @@ namespace PWMS.Service.Commands
 					await _invoiceRepository.UpdateStatusAsync(invoice.InvoiceNumber, InvoiceStatus.InConference);
 
 				await _invoiceItemRepository.UpdateItemAsync(invoice.Id, lineNumber, request.quantity, request.userId);
+
+				if (!await _invoiceItemRepository.HasUnconferedItens(invoice.Id))
+				{
+					await _mediator.SendAsync(new PublishConferenciaNFCommand(
+						invoice.InvoiceNumber,
+						invoice.Id,
+						request.userId
+					), cancellationToken);
+				}
 
 				await _unitOfWork.CommitAsync();
 

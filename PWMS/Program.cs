@@ -40,6 +40,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddLogging(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddRabbitMQ(builder.Configuration);
 
 Log.Information("PWMS Application starting...");
 

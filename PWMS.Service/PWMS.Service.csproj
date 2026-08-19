@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="ModernMediator" Version="2.2.1" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.2.2" />
   </ItemGroup>
 
   <ItemGroup>

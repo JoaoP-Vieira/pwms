@@ -12,40 +12,46 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  kafka:
-    image: apache/kafka:latest
-    container_name: kafka
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
     ports:
-      - 9092:9092
-      - 19092:19092
-      - 9094:9094
+      - 5672:5672
+      - 15672:15672
     environment:
-      - KAFKA_NODE_ID=1
-      - KAFKA_PROCESS_ROLES=broker,controller
-      - CLUSTER_ID=4c7019ad-cce8-4554-80cd-66fafe4ef46f
-      - KAFKA_LISTENERS=CONTROLLER://0.0.0.0:9094,INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
-      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://localhost:19092
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9094
-      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
-      - KAFKA_LOG_DIRS=/var/lib/kafka/data
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     volumes:
-      - kafka-data:/var/lib/kafka/data
+      - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
-  
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
     ports:
-      - 8080:8080
-    depends_on:
-      - kafka
+      - "27017:27017"
     environment:
-      - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo_express_container
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: dev
+      ME_CONFIG_MONGODB_URL: mongodb://admin:dev@mongodb:27017/
+    depends_on:
+      - mongodb
     restart: unless-stopped
 
 volumes:
   pgdata:
-  kafka-data:  
+  rabbitmq_data:
+  mongo_data:
+    driver: local

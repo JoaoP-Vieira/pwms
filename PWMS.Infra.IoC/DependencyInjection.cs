@@ -12,6 +12,8 @@ using PWMS.Infra.Data.Logging;
 using PWMS.Infra.Data.Repositories;
 using PWMS.Infra.Data.Security;
 using PWMS.Service.Queries;
+using PWMS.Service.RabbitMQ;
+using PWMS.Service.RabbitMQ.Interfaces;
 using Serilog;
 
 namespace PWMS.Infra.IoC
@@ -101,6 +103,30 @@ namespace PWMS.Infra.IoC
 			});
 
 			services.AddAuthorization();
+
+			return services;
+		}
+
+		public static IServiceCollection AddRabbitMQ(
+			this IServiceCollection services,
+			IConfiguration configuration)
+		{
+			var rabbitMQConfig = configuration.GetSection("RabbitMQ");
+			
+			var hostName = rabbitMQConfig["HostName"] ?? "localhost";
+			var port = int.Parse(rabbitMQConfig["Port"] ?? "5672");
+			var userName = rabbitMQConfig["UserName"] ?? "guest";
+			var password = rabbitMQConfig["Password"] ?? "guest";
+
+			services.AddSingleton<IRabbitMQConnection>(sp =>
+			{
+				var logger = sp.GetRequiredService<ILogger>();
+				return new RabbitMQConnection(hostName, port, userName, password, logger);
+			});
+
+			services.AddSingleton(sp => sp.GetRequiredService<IRabbitMQConnection>().GetConnection());
+
+			services.AddScoped<IRabbitMQPublisher, RabbitMQPublisher>();
 
 			return services;
 		}

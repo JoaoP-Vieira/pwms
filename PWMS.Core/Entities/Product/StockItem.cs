@@ -29,7 +29,6 @@ namespace PWMS.Core.Entities.Product
 			if (conferenceUserId <= 0)
 				throw new ArgumentException("Conference user ID should be valid", nameof(conferenceUserId));
 
-			Label = label;
 			Location = location;
 			InvoiceId = invoiceId;
 			InvoiceLineNumber = invoiceLineNumber;
