@@ -57,12 +57,13 @@ namespace PWMS.Infra.IoC
 			this IServiceCollection services,
 			IConfiguration configuration)
 		{
-			var logger = new LoggerConfiguration()
-				.ReadFrom.Configuration(configuration)
-				.CreateLogger();
-
-			services.AddSingleton<ILogger>(logger);
-			services.AddScoped<IApplicationLogger, SerilogApplicationLogger>();
+			// O Serilog já está configurado no Program.cs via UseSerilog()
+			// Aqui apenas registramos o wrapper IApplicationLogger
+			services.AddScoped<IApplicationLogger>(sp =>
+			{
+				var logger = Log.Logger;
+				return new SerilogApplicationLogger(logger);
+			});
 
 			return services;
 		}
