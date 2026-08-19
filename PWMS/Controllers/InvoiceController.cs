@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ModernMediator;
 using PWMS.Service.Commands;
+using PWMS.Service.Queries;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -16,6 +17,24 @@ namespace PWMS.API.Controllers
 		public InvoiceController(ISender sender)
 		{
 			_sender = sender;
+		}
+
+		[HttpGet("list-created")]
+		[Authorize]
+		public async Task<IActionResult> GetInvoicesReadyToAssignVehicle()
+		{
+			try
+			{
+				var query = new GetInvoicesReadyToAssignVehicleQuery();
+
+				var result = await _sender.SendAsync(query);
+
+				return Ok(result);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
 		}
 
 		[HttpPost]
@@ -39,7 +58,7 @@ namespace PWMS.API.Controllers
 		}
 
 		[Authorize]
-		[HttpPut("assing/vehicle")]
+		[HttpPut("assign/vehicle")]
 		public async Task<IActionResult> AssingVehicleToInvoice([FromBody] AssingVehicleToInvoiceCommand body)
 		{
 			try

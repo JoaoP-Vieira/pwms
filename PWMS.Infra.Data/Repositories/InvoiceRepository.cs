@@ -50,6 +50,37 @@ namespace PWMS.Infra.Data.Repositories
 		WHERE i.invoice_number = @InvoiceNumber;
 		";
 
+		private const string SELECT_INVOICES_REDY_TO_ASSIGN_VEHICLE = @"SELECT
+			i.invoice_number AS ""InvoiceNumber"",
+			i.series AS ""Series"",
+			i.issue_date AS ""IssueDate"",
+			i.total_amount AS ""TotalAmount"",
+			i.total_volumes AS ""TotalVolumes"",
+			count(ii.line_number) AS ""TotalItens"",
+			i.created_at AS ""CreatedAt"",
+			isp.name AS ""Issuer"",
+			rcp.name AS ""Recipient"",
+			crp.name AS ""Carrier""
+		FROM public.invoice i
+			INNER JOIN invoice_item ii on ii.invoice_id = i.id
+			LEFT JOIN person isp ON isp.id = i.issuer_id
+			LEFT JOIN person rcp ON rcp.id = i.carrier_id
+			LEFT JOIN person crp ON crp.id = i.carrier_id
+		WHERE i.status = 0
+			AND i.invoice_type = 1
+		GROUP BY
+			i.invoice_number,
+			i.series,
+			i.invoice_type,
+			i.issue_date,
+			i.total_amount,
+			i.total_volumes,
+			i.created_at,
+			isp.name,
+			rcp.name,
+			crp.name;
+		";
+
 		private const string INSERT_INVOICE = @"INSERT INTO invoice 
 		(
 			id,
@@ -137,6 +168,15 @@ namespace PWMS.Infra.Data.Repositories
 			}, new { InvoiceNumber = invoiceNumber });
 
 			return result.FirstOrDefault();
+		}
+
+		public async Task<IEnumerable<dynamic>> SelectInvoicesReadyToAssignVehicleAsync()
+		{
+			var conn = _dbContext.GetConnection();
+
+			var result = await conn.QueryAsync<dynamic>(SELECT_INVOICES_REDY_TO_ASSIGN_VEHICLE);
+
+			return result;
 		}
 
 		public async Task InsertAsync(Invoice invoice)
